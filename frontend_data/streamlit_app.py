@@ -1,5 +1,6 @@
 import streamlit as st
 import requests
+import pandas as pd
 
 # Function to fetch options data from the API
 def fetch_options_data(api_url):
@@ -14,7 +15,8 @@ def fetch_options_data(api_url):
 def submit_selections(api_url, selections):
     response = requests.post(api_url, json=selections)
     if response.status_code == 200:
-        return response
+        df = pd.read_json(response.json(), orient='records')
+        return df
     else:
         st.error("Failed to submit selections.")
         return {}

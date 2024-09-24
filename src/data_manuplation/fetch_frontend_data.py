@@ -24,7 +24,7 @@ def options_data():
     }
 
 
-def filter_data(unit=None, fmn=None, branch=None, sub_branch=None, detl=None):
+def filter_data(fmn=None, branch=None, sub_branch=None, detl=None):
     df = DatabaseLoad().load_data()
 
     # Apply filters based on provided parameters
@@ -37,5 +37,5 @@ def filter_data(unit=None, fmn=None, branch=None, sub_branch=None, detl=None):
     if detl and detl != 'All':
         df = df[df['Detl'] == detl]
 
-    return df.reset_index(drop=True)
-options_data()
+    df_json = df.to_json(orient='records')  # Convert DataFrame to JSON format
+    return df_json
