@@ -45,8 +45,8 @@ def main():
     sub_branch_selected = st.sidebar.selectbox("Select Sub Branch", sub_branch_options)
 
     # Selecting column to sum
-    column_options = ['All'] + options.get('columns_names', [])
-    column_selected = st.sidebar.selectbox("Select Column to Sum", column_options)
+    column_options = ['All'] + options.get('detl', [])
+    column_selected = st.sidebar.selectbox("Detailment", column_options)
 
     # Button to submit selections
     if st.sidebar.button("Submit Selections"):
