@@ -1,64 +1,43 @@
 import streamlit as st
-import requests
-import pandas as pd
+from data_processor import DataProcessor
 
-# Function to fetch options data from the API
-def fetch_options_data(api_url):
-    response = requests.get(api_url)
-    if response.status_code == 200:
-        return response.json()
-    else:
-        st.error("Failed to fetch options data from the API.")
-        return {}
+class StreamlitApp:
+    def __init__(self):
+        self.data_processor = DataProcessor()
+        self.options = self.data_processor.get_options_data()
 
-# Function to submit selections to the API
-def submit_selections(api_url, selections):
-    response = requests.post(api_url, json=selections)
-    if response.status_code == 200:
-        df = pd.read_json(response.json(), orient='records')
-        return df
-    else:
-        st.error("Failed to submit selections.")
-        return {}
+    def run(self):
+        st.sidebar.header("Filter Selection")
 
-def main():
-    # API URLs
-    options_api_url = "http://localhost:8000/data/data_selection"  # Replace with your actual API endpoint
-    submit_api_url = "http://localhost:8000/data/submit-selections"  # Replace with your actual API endpoint
+        # Sidebar filters
+        fmn_selected = st.sidebar.selectbox("Select Fmn", ['All'] + self.options.get('fmn_rows', []), index=0)
+        branch_selected = st.sidebar.selectbox("Select Branch", ['All'] + self.options.get('branch', []), index=0)
+        sub_branch_selected = st.sidebar.selectbox("Select Sub Branch", ['All'] + self.options.get('sub_branch', []), index=0)
+        detailment_selected = st.sidebar.selectbox("Detailment", ['All'] + self.options.get('detl', []), index=0)
+        bridge_selected = st.sidebar.selectbox("Select Column to Sum", ['All'] + self.options.get('columns_names', []), index=0)
 
-    # Fetch options for dropdowns
-    options = fetch_options_data(options_api_url)
+        # Display all data initially
+        st.write("All Data:")
+        st.dataframe(self.data_processor.df)
 
-    # Sidebar for selections
-    st.sidebar.header("Filter Selection")
+        # Button to submit selections
+        if st.sidebar.button("Submit Selections"):
+            filtered_data = self.data_processor.filter_data(
+                fmn=fmn_selected,
+                branch=branch_selected,
+                sub_branch=sub_branch_selected,
+                detl=detailment_selected,
+                bridge = bridge_selected
+            )
 
-    # Selecting 'Fmn' with an 'All' option
-    fmn_options = ['All'] + options.get('fmn_rows', [])
-    fmn_selected = st.sidebar.selectbox("Select Fmn", fmn_options)
+            # Show the filtered result
+            if not filtered_data.empty:
+                st.write("Filtered Data:")
+                st.dataframe(filtered_data)
+            else:
+                st.warning("No data found for the selected filters.")
 
-    # Selecting 'Branch' with an 'All' option
-    branch_options = ['All'] + options.get('branch', [])
-    branch_selected = st.sidebar.selectbox("Select Branch", branch_options)
-
-    # Selecting 'Sub Branch' with an 'All' option
-    sub_branch_options = ['All'] + options.get('sub_branch', [])
-    sub_branch_selected = st.sidebar.selectbox("Select Sub Branch", sub_branch_options)
-
-    # Selecting column to sum
-    column_options = ['All'] + options.get('detl', [])
-    column_selected = st.sidebar.selectbox("Detailment", column_options)
-
-    # Button to submit selections
-    if st.sidebar.button("Submit Selections"):
-        selections = {
-            "selected_column": column_selected,
-            "selected_fmn": fmn_selected if fmn_selected != 'All' else None,
-            "selected_branch": branch_selected if branch_selected != 'All' else None,
-            "selected_sub_branch": sub_branch_selected if sub_branch_selected != 'All' else None,
-        }
-        result = submit_selections(submit_api_url, selections)
-        st.write("Submission Result:", result)
-
-# Run the app
+# Run the application
 if __name__ == "__main__":
-    main()
+    app = StreamlitApp()
+    app.run()
