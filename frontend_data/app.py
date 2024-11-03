@@ -1,7 +1,6 @@
 import streamlit as st
 from streamlit import plotly_chart
 from data_processor import DataProcessor
-import json
 from datetime import datetime
 from queries_manager import QueryManager
 
@@ -34,14 +33,6 @@ class StreamlitApp:
         # self.load_admin_password()
         self.obj = QueryManager()
 
-    # def load_admin_password(self):
-    #     """Load admin password from a JSON file."""
-    #     try:
-    #         with open('admin_password.json', 'r') as f:
-    #             self.admin_credentials = json.load(f)
-    #     except FileNotFoundError:
-    #         self.admin_credentials = {"password": "admin123"}  # Default password
-
     def view_queries(self):
         """View all user queries and their statuses."""
         st.subheader("Your Queries Status")
@@ -68,19 +59,13 @@ class StreamlitApp:
 
 
     def run(self):
-        # st.title("Data Visualization App")
-        # st.subheader("Explore your data with dynamic filters")
 
         # Sidebar for navigation
         page = st.sidebar.selectbox("Select Page", ["Home", "View My Queries"])
-
-        # User Query Section
         if page == "Home":
             self.user_query_section()
         elif page == "View My Queries":
             self.view_queries()
-        # elif page == "Admin Actions":
-        #     self.admin_actions()
 
     def user_query_section(self):
         st.sidebar.header("User Query")
@@ -142,74 +127,6 @@ class StreamlitApp:
                 st.warning("No data found for the selected filters.")
 
         st.markdown("---")
-
-    # def admin_actions(self):
-    #     """Admin actions for managing queries."""
-    #     st.sidebar.header("Admin Actions")
-    #     admin_password = st.sidebar.text_input("Admin Password:", type='password')
-    #
-    #     if st.sidebar.button("Login as Admin"):
-    #         if admin_password == self.admin_credentials["password"]:
-    #             st.sidebar.success("Admin logged in successfully!")
-    #             self.manage_queries()
-    #         else:
-    #             st.sidebar.error("Invalid password!")
-
-    # def manage_queries(self):
-    #     """Manage user queries (accept/reject) and update status in CSV file."""
-    #     queries = self.obj.load_queries_pending()
-    #
-    #     if not queries.empty:
-    #         for _, query in queries.iterrows():
-    #             # Create a dictionary for the current query
-    #             query_dict = {
-    #                 "Unit": query['unit'],
-    #                 "Query": query['query'],
-    #                 "Raised By": query['raised_by'],
-    #                 "Current Status": query['status'],
-    #                 "Comment": query['comment']
-    #             }
-    #
-    #             # Display the query as a dictionary
-    #             st.markdown("### Query Details")
-    #             st.json(query_dict)
-    #
-    #             col1, col2 = st.columns(2)
-    #             with col1:
-    #                 # Initialize session state for status if not already done
-    #                 if f"status_{query['id']}" not in st.session_state:
-    #                     st.session_state[f"status_{query['id']}"] = query['status']  # Set initial status from query
-    #
-    #                 # Status selection
-    #                 status = st.selectbox(
-    #                     "Update Status",
-    #                     ["Pending", "Accepted", "Rejected"],
-    #                     key=f"status_{query['id']}"
-    #                 )
-    #
-    #             with col2:
-    #                 # Initialize session state for comment if not already done
-    #                 if f"comment_{query['id']}" not in st.session_state:
-    #                     st.session_state[f"comment_{query['id']}"] = query['comment']  # Set initial comment from query
-    #
-    #                 comment = st.text_input("Admin Comment", key=f"comment_{query['id']}",
-    #                                         value=st.session_state[f"comment_{query['id']}"])
-    #
-    #             # Update query button
-    #             if st.button("Update Query", key=f"update_{query['id']}"):
-    #                 with st.spinner("Updating..."):
-    #                     try:
-    #                         # Update only when the button is clicked
-    #                         self.obj.update_query_status(
-    #                             query.to_dict(),
-    #                             st.session_state[f"status_{query['id']}"],
-    #                             st.session_state[f"comment_{query['id']}"]
-    #                         )
-    #                         st.success("Query updated successfully!")
-    #                     except Exception as e:
-    #                         st.error(f"Failed to update query: {e}")
-    #     else:
-    #         st.info("No pending queries to manage.")
 
     def colorize_dataframe(self, df):
         """Colorize the dataframe based on certain conditions."""
